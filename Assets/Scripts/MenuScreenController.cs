@@ -4,9 +4,21 @@ using UnityEngine.SceneManagement;
 
 public class MenuScreenController : MonoBehaviour
 {
-    public void SetDifficulty(int index)
+    private int selectedCourse = 0;
+
+    public void SetCourse(int courseIndex)
     {
-        DataController.Instance.SetRound(index);
-        SceneManager.LoadScene("Game");
+        selectedCourse = courseIndex;
+
+        Debug.Log("Selected Course: " + selectedCourse);
+    }
+
+    public void SetDifficulty(int difficultyIndex)
+    {
+        int roundIndex = (selectedCourse * 3) + difficultyIndex;
+
+        DataController.Instance.SetRound(roundIndex);
+
+        SceneManager.LoadScene("Level 1");
     }
 }

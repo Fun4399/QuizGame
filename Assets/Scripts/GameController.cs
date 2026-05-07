@@ -1,15 +1,16 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-
-
     public TextMeshProUGUI questionDisplayText;
     public TextMeshProUGUI scoreDisplayText;
     public TextMeshProUGUI timeRemainingDisplayText;
+    public Slider playerHPBar;
+    public Slider enemyHPBar;
     public SimpleObjectPool answerButtonObjectPool;
     public Transform answerButtonParent;
     public GameObject questionDisplay;
@@ -18,6 +19,7 @@ public class GameController : MonoBehaviour
     private DataController dataController;
     private RoundData currentRoundData;
     private QuestionData[] questionPool;
+    public CombatSystem combatSystem;
 
     private bool isRoundActive;
     private float timeRemaining;
@@ -37,7 +39,10 @@ public class GameController : MonoBehaviour
 
         playerScore = 0;
         questionIndex = 0;
+        playerHPBar.maxValue = combatSystem.playerHP;
+        enemyHPBar.maxValue = combatSystem.enemyHP;
 
+        UpdateHPUI();
         ShowQuestion();
         isRoundActive = true;
 
@@ -45,6 +50,9 @@ public class GameController : MonoBehaviour
 
     private void ShowQuestion()
     {
+        timeRemaining = currentRoundData.timeLimitInSeconds;
+        UpdateTimeRemainingDisplay();
+
         RemoveAnswerButtons();
         QuestionData questionData = questionPool[questionIndex];
         questionDisplayText.text = questionData.questionText;
@@ -75,6 +83,18 @@ public class GameController : MonoBehaviour
         {
             playerScore += currentRoundData.pointsAddedForCorrectAnswer;
             scoreDisplayText.text = "Score: " + playerScore.ToString();
+
+            combatSystem.PlayerAttack();
+        }
+        else
+        {
+            combatSystem.EnemyAttack();
+        }
+
+        if (combatSystem.IsGameOver())
+        {
+            EndRound();
+            return;
         }
 
         if (questionPool.Length > questionIndex + 1)
@@ -94,7 +114,15 @@ public class GameController : MonoBehaviour
         isRoundActive = false;
 
         questionDisplay.SetActive(false);
-        roundEndDisplay.SetActive(true);
+
+        if (combatSystem.PlayerWon())
+        {
+            Invoke(nameof(LoadNextLevel), 2f);
+        }
+        else
+        {
+            roundEndDisplay.SetActive(true);
+        }
     }
 
     public void ReturnToMenu()
@@ -117,10 +145,27 @@ public class GameController : MonoBehaviour
 
             if (timeRemaining <= 0f)
             {
-                EndRound();
-            }
+                combatSystem.EnemyAttack();
 
+                if (combatSystem.IsGameOver())
+                {
+                    EndRound();
+                    return;
+                }
+
+                if (questionPool.Length > questionIndex + 1)
+                {
+                    questionIndex++;
+                    ShowQuestion();
+                }
+                else
+                {
+                    EndRound();
+                }
+            }
         }
+
+        UpdateHPUI();
     }
 
     private void ShuffleQuestions(QuestionData[] array)
@@ -131,6 +176,26 @@ public class GameController : MonoBehaviour
             QuestionData temp = array[i];
             array[i] = array[randomIndex];
             array[randomIndex] = temp;
+        }
+    }
+
+    void UpdateHPUI()
+    {
+        playerHPBar.value = combatSystem.playerHP;
+        enemyHPBar.value = combatSystem.enemyHP;
+    }
+
+    void LoadNextLevel()
+    {
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+
+        if (currentSceneIndex < SceneManager.sceneCountInBuildSettings - 1)
+        {
+            SceneManager.LoadScene(currentSceneIndex + 1);
+        }
+        else
+        {
+            SceneManager.LoadScene("MenuScreen");
         }
     }
 }
