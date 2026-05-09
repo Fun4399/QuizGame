@@ -1,24 +1,36 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 using UnityEngine.SceneManagement;
+using static GameEnum;
 
 public class MenuScreenController : MonoBehaviour
 {
-    private int selectedCourse = 0;
 
-    public void SetCourse(int courseIndex)
+    public void SetCourse(int index)
     {
-        selectedCourse = courseIndex;
-
-        Debug.Log("Selected Course: " + selectedCourse);
+        if (index == 0)
+        {
+            DataController.Instance.currentSubject = SubjectType.Math;
+        }
+        else
+        {
+            DataController.Instance.currentSubject = SubjectType.English;
+        }
     }
 
-    public void SetDifficulty(int difficultyIndex)
+    public void SetDifficulty(int index)
     {
-        int roundIndex = (selectedCourse * 3) + difficultyIndex;
-
-        DataController.Instance.SetRound(roundIndex);
-
-        SceneManager.LoadScene("Level 1");
+        if (index == 0)
+        {
+            DataController.Instance.currentDifficulty = DifficultyType.Easy;
+        }
+        else if (index == 1)
+        {
+            DataController.Instance.currentDifficulty = DifficultyType.Medium;
+        }
+        else
+        {
+            DataController.Instance.currentDifficulty = DifficultyType.Hard;
+        }
     }
 }

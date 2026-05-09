@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
+    public int currentLevelID = 1;
+
     public TextMeshProUGUI questionDisplayText;
     public TextMeshProUGUI scoreDisplayText;
     public TextMeshProUGUI timeRemainingDisplayText;
@@ -118,6 +120,7 @@ public class GameController : MonoBehaviour
         if (combatSystem.PlayerWon())
         {
             Invoke(nameof(LoadNextLevel), 2f);
+            UnlockNewLevel();
         }
         else
         {
@@ -197,5 +200,29 @@ public class GameController : MonoBehaviour
         {
             SceneManager.LoadScene("MenuScreen");
         }
+    }
+
+    void UnlockNewLevel()
+    {
+        string unlockKey = GetUnlockKey();
+
+        int unlockedLevel = PlayerPrefs.GetInt(unlockKey, 1);
+
+        int currentLevel = currentLevelID;
+
+        if (currentLevel >= unlockedLevel)
+        {
+            PlayerPrefs.SetInt(unlockKey, currentLevel + 1);
+
+            PlayerPrefs.Save();
+        }
+    }
+
+    string GetUnlockKey()
+    {
+        return DataController.Instance.currentSubject.ToString()
+            + "_"
+            + DataController.Instance.currentDifficulty.ToString()
+            + "_UnlockedLevel";
     }
 }

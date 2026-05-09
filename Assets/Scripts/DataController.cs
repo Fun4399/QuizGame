@@ -2,6 +2,7 @@ using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static GameEnum;
 
 public class DataController : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class DataController : MonoBehaviour
     private int currentRoundIndex = 0;
 
     public static DataController Instance;
+    public SubjectType currentSubject;
+    public DifficultyType currentDifficulty;
     private string gameDataFileName = "data.json";
 
     // Use this for initialization

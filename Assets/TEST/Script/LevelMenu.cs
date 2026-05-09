@@ -12,7 +12,11 @@ public class LevelMenu : MonoBehaviour
     private void Awake()
     {
         ButtonsToArray();
-        int unlockedLevel = PlayerPrefs.GetInt("UnlockedLevel", 1);
+
+        string unlockKey = GetUnlockKey();
+
+        int unlockedLevel = PlayerPrefs.GetInt(unlockKey, 1);
+
         for (int i = 0; i < buttons.Length; i++)
         {
             buttons[i].interactable = false;
@@ -37,5 +41,13 @@ public class LevelMenu : MonoBehaviour
         {
             buttons [i] = levelButtons.transform.GetChild(i).gameObject.GetComponent<Button>();
         }
+    }
+
+    string GetUnlockKey()
+    {
+        return DataController.Instance.currentSubject.ToString()
+            + "_"
+            + DataController.Instance.currentDifficulty.ToString()
+            + "_UnlockedLevel";
     }
 }
